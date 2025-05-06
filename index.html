@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>007</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: black;
+      color: #ffcc00;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+    .movies {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .movie {
+      background: #222;
+      border: 2px solid #ffcc00;
+      border-radius: 12px;
+      width: 200px;
+      padding: 10px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .movie:hover {
+      transform: scale(1.05);
+      background: #333;
+    }
+    .movie img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .movie-title {
+      margin-top: 10px;
+      font-size: 1em;
+      font-weight: bold;
+    }
+  
+    @media (max-width: 600px) {
+      .movies {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+      .movie {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .movie img {
+        height: auto;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<h1>🚨 007 Cinematic Universe</h1>
+
+<div class="movies" id="movies"></div>
+
+<script>
+const movies = [
+  { title: "Rocky", video: "https://cdn-1.celestialodyssey.site/video-stream/7e42fc4c/playlist.m3u8", image: "https://alternativemovieposters.com/wp-content/uploads/2023/06/Ash-Weaver_DRNO.jpg" },
+  { title: "Rocky II", video: "https://cdn-1.celestialodyssey.site/video-stream/a33996e3/playlist.m3u8", image: "https://m.media-amazon.com/images/I/71M+yet93tL.jpg" },
+  { title: "Rocky III", video: "https://cdn-1.celestialodyssey.site/video-stream/9098485c/playlist.m3u8", image: "https://i.etsystatic.com/14140434/r/il/f4e478/1486444070/il_fullxfull.1486444070_20a2.jpg" },
+  { title: "Rocky IV", video: "https://cdn-1.celestialodyssey.site/video-stream/5a9bd4f7/playlist.m3u8", image: "https://posterspy.com/wp-content/uploads/2023/06/TB_WEB_TEMPLATE_1000x1500px.jpg" },
+  { title: "Rocky V", video: "https://cdn-1.celestialodyssey.site/video-stream/840eb554/playlist.m3u8", image: "https://goauctionomega.blob.core.windows.net/stock/35781-1-medium.jpg?v=63826656829657" },
+  { title: "Rocky Balboa", video: "https://cdn-1.celestialodyssey.site/video-stream/a32adcdf/playlist.m3u8", image: "https://media-cache.cinematerial.com/p/500x/ztunectl/on-her-majestys-secret-service-movie-poster.jpg?v=1456639344" },
+  { title: "Creed", video: "https://cdn-1.celestialodyssey.site/video-stream/d00bbb0b/playlist.m3u8", image: "https://posterspy.com/wp-content/uploads/2023/06/DAF_WEB_TEMPLATE_1000x1500px.jpg" },
+  { title: "Creed II", video: "https://cdn-1.celestialodyssey.site/video-stream/5aedc190/playlist.m3u8", image: "https://alternativemovieposters.com/wp-content/uploads/2022/12/Robert-Watts_LiveLetDie.jpg" },
+  { title: "Creed III", video: "https://cdn-1.celestialodyssey.site/video-stream/8226de75/playlist.m3u8", image: "https://image.tmdb.org/t/p/original/itH4xI6TbJtJSqcZ43B3MkpL1gy.jpg" },
+];
+
+const container = document.getElementById('movies');
+movies.forEach((movie, index) => {
+  const div = document.createElement('div');
+  div.className = 'movie';
+  div.innerHTML = `
+    <img src="${movie.image}" alt="${movie.title}">
+    <div class="movie-title">${movie.title}</div>
+  `;
+  div.onclick = () => {
+    const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&index=${index}`;
+    window.location.href = url;
+  };
+  container.appendChild(div);
+});
+</script>
+
+</body>
+</html>
