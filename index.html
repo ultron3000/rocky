@@ -2,101 +2,330 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rocky</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rocky Cinematic Universe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="description" content="Explore the complete Rocky movie collection">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Oswald:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      background: black;
-      color: #ffcc00;
-      font-family: Arial, sans-serif;
+    :root {
+      --primary: #d4af37;
+      --secondary: #1a1a1a;
+      --accent: #c8102e;
+      --text: #f8f8f8;
+      --bg: #0a0a0a;
+      --card-bg: rgba(26, 26, 26, 0.8);
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1512070679272-2690c7baec5e?q=80&w=2070&auto=format&fit=crop');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
       padding: 20px;
+    }
+
+    header {
+      padding: 20px 0;
       text-align: center;
+      position: relative;
     }
+
     h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 3rem;
       margin-bottom: 20px;
-      font-size: 2em;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      letter-spacing: 1px;
     }
-    .movies {
+
+    .controls {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 20px;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
     }
-    .movie {
-      background: #222;
-      border: 2px solid #ffcc00;
-      border-radius: 12px;
-      width: 200px;
-      padding: 10px;
+
+    .search-box, .filter-btn {
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: 1px solid var(--primary);
+      background: rgba(0, 0, 0, 0.5);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.3s;
+    }
+
+    .search-box {
+      min-width: 300px;
+    }
+
+    .filter-btn {
       cursor: pointer;
-      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
+    .filter-btn:hover, .search-box:focus {
+      background: rgba(212, 175, 55, 0.1);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .movies {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 25px;
+      padding: 20px 0;
+    }
+
+    .movie {
+      background: var(--card-bg);
+      border-radius: 15px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
     .movie:hover {
-      transform: scale(1.05);
-      background: #333;
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
     }
+
+    .movie::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
     .movie img {
       width: 100%;
-      height: 280px;
+      height: 320px;
       object-fit: cover;
-      border-radius: 10px;
+      transition: transform 0.5s;
     }
+
+    .movie:hover img {
+      transform: scale(1.05);
+    }
+
+    .movie-info {
+      padding: 15px;
+    }
+
     .movie-title {
-      margin-top: 10px;
-      font-size: 1em;
-      font-weight: bold;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 1.1rem;
     }
-  
-    @media (max-width: 600px) {
+
+    .movie-year {
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    .scroll-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 100;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    .scroll-top.visible {
+      opacity: 1;
+    }
+
+    .scroll-top:hover {
+      transform: translateY(-5px);
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
       .movies {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 15px;
       }
-      .movie {
-        width: 100%;
-        box-sizing: border-box;
-      }
+      
       .movie img {
-        height: auto;
+        height: 220px;
       }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .search-box {
+        min-width: auto;
+        width: 100%;
+      }
+      
+      .movies {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #b89b30;
     }
 
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-film"></i> Rocky Cinematic Universe</h1>
+      <div class="controls">
+        <input type="text" class="search-box" placeholder="Search movies..." id="search">
+        <button class="filter-btn" id="filter-btn">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+      </div>
+    </header>
 
-<h1>🚨 Rocky Cinematic Universe</h1>
+    <div class="movies" id="movies"></div>
+  </div>
 
-<div class="movies" id="movies"></div>
+  <div class="scroll-top" id="scrollTop">
+    <i class="fas fa-arrow-up"></i>
+  </div>
 
 <script>
 const movies = [
-  { title: "Rocky", video: "https://sdqm.mcentirecajigas.sbs/v4/ic/mrbhn/cf-master.txt?v=1733754809", image: "https://m.media-amazon.com/images/I/81D9S-YP5oL.jpg" },
-  { title: "Rocky II", video: "https://skra.boehmerrbfjx.sbs/v4/ic/cggne/cf-master.txt?v=1733429895", image: "https://images-cdn.ubuy.co.in/634e494b208b18270d536803-movie-poster-rocky-ii-1979-24x36-this.jpg" },
-  { title: "Rocky III", video: "https://skra.vivianorov.sbs/v4/ck/bubqy/cf-master.txt?v=1733191364", image: "https://pics.filmaffinity.com/rocky_iii-735953230-large.jpg" },
-  { title: "Rocky IV", video: "https://sskt.yevettesha.sbs/v4/qu/mda58/cf-master.txt?v=1733078783", image: "https://posterspy.com/wp-content/uploads/2020/11/rocky-iv-genzo-1280.jpg" },
-  { title: "Rocky V", video: "https://sxic.vivianorov.sbs/v4/us/6nsuu/cf-master.txt?v=1732784022", image: "https://m.media-amazon.com/images/M/MV5BMTM2Mzc4MTYxM15BMl5BanBnXkFtZTcwODY5NTk1NA@@._V1_FMjpg_UX1000_.jpg" },
-  { title: "Rocky Balboa", video: "https://sskt.griseldakro.sbs/v4/sc/8ejoy/cf-master.txt?v=1735725894", image: "https://m.media-amazon.com/images/I/81zj0nhRI1L.jpg" },
-  { title: "Creed", video: "https://sipt.cneeleyalin.sbs/v4/36/mokks/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/I/61rcZZn-HfL._AC_UF1000,1000_QL80_.jpg" },
-  { title: "Creed II", video: "https://sj3l.vivianorovc.sbs/v4/np/9vj9y/cf-master.txt?v=1733274376", image: "https://mlpnk72yciwc.i.optimole.com/cqhiHLc.IIZS~2ef73/w:auto/h:auto/q:75/https://bleedingcool.com/wp-content/uploads/2018/02/creed-ii.jpg" },
-  { title: "Creed III", video: "https://smashyplayer.top/hls/pZaKu2IfuMP3_UnM3f7ZLQ/m9/dq8wrxen/czgjb/tt/master.m3u8", image: "https://m.media-amazon.com/images/M/MV5BOWY0MTRmY2YtMzBlYi00NjlkLThkZWYtMmE2NzJiZmIzODFkXkEyXkFqcGc@._V1_.jpg" },
+  { title: "Rocky", year: "1976", video: "https://sdqm.mcentirecajigas.sbs/v4/ic/mrbhn/cf-master.txt?v=1733754809", image: "https://m.media-amazon.com/images/I/81D9S-YP5oL.jpg" },
+  { title: "Rocky II", year: "1979", video: "https://skra.boehmerrbfjx.sbs/v4/ic/cggne/cf-master.txt?v=1733429895", image: "https://images-cdn.ubuy.co.in/634e494b208b18270d536803-movie-poster-rocky-ii-1979-24x36-this.jpg" },
+  { title: "Rocky III", year: "1982", video: "https://skra.vivianorov.sbs/v4/ck/bubqy/cf-master.txt?v=1733191364", image: "https://pics.filmaffinity.com/rocky_iii-735953230-large.jpg" },
+  { title: "Rocky IV", year: "1985", video: "https://sskt.yevettesha.sbs/v4/qu/mda58/cf-master.txt?v=1733078783", image: "https://posterspy.com/wp-content/uploads/2020/11/rocky-iv-genzo-1280.jpg" },
+  { title: "Rocky V", year: "1990", video: "https://sxic.vivianorov.sbs/v4/us/6nsuu/cf-master.txt?v=1732784022", image: "https://m.media-amazon.com/images/M/MV5BMTM2Mzc4MTYxM15BMl5BanBnXkFtZTcwODY5NTk1NA@@._V1_FMjpg_UX1000_.jpg" },
+  { title: "Rocky Balboa", year: "2006", video: "https://sskt.griseldakro.sbs/v4/sc/8ejoy/cf-master.txt?v=1735725894", image: "https://m.media-amazon.com/images/I/81zj0nhRI1L.jpg" },
+  { title: "Creed", year: "2015", video: "https://sipt.cneeleyalin.sbs/v4/36/mokks/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/I/61rcZZn-HfL._AC_UF1000,1000_QL80_.jpg" },
+  { title: "Creed II", year: "2018", video: "https://sj3l.vivianorovc.sbs/v4/np/9vj9y/cf-master.txt?v=1733274376", image: "https://mlpnk72yciwc.i.optimole.com/cqhiHLc.IIZS~2ef73/w:auto/h:auto/q:75/https://bleedingcool.com/wp-content/uploads/2018/02/creed-ii.jpg" },
+  { title: "Creed III", year: "2023", video: "https://smashyplayer.top/hls/pZaKu2IfuMP3_UnM3f7ZLQ/m9/dq8wrxen/czgjb/tt/master.m3u8", image: "https://m.media-amazon.com/images/M/MV5BOWY0MTRmY2YtMzBlYi00NjlkLThkZWYtMmE2NzJiZmIzODFkXkEyXkFqcGc@._V1_.jpg" },
 ];
 
 const container = document.getElementById('movies');
-movies.forEach((movie, index) => {
-  const div = document.createElement('div');
-  div.className = 'movie';
-  div.innerHTML = `
-    <img src="${movie.image}" alt="${movie.title}">
-    <div class="movie-title">${movie.title}</div>
-  `;
-  div.onclick = () => {
-    const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&index=${index}`;
-    window.location.href = url;
-  };
-  container.appendChild(div);
+const searchInput = document.getElementById('search');
+const filterBtn = document.getElementById('filter-btn');
+const scrollTopBtn = document.getElementById('scrollTop');
+
+// Render movies
+function renderMovies(moviesToRender) {
+  container.innerHTML = '';
+  moviesToRender.forEach((movie, index) => {
+    const div = document.createElement('div');
+    div.className = 'movie';
+    div.innerHTML = `
+      <img src="${movie.image}" alt="${movie.title}" loading="lazy">
+      <div class="movie-info">
+        <div class="movie-title">${movie.title}</div>
+        <div class="movie-year">${movie.year}</div>
+      </div>
+    `;
+    div.onclick = () => {
+      const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&index=${index}`;
+      window.location.href = url;
+    };
+    container.appendChild(div);
+  });
+}
+
+// Initial render
+renderMovies(movies);
+
+// Search functionality
+searchInput.addEventListener('input', (e) => {
+  const searchTerm = e.target.value.toLowerCase();
+  const filtered = movies.filter(movie => 
+    movie.title.toLowerCase().includes(searchTerm) || 
+    movie.year.includes(searchTerm)
+  );
+  renderMovies(filtered);
+});
+
+// Scroll to top functionality
+window.addEventListener('scroll', () => {
+  if (window.pageYOffset > 300) {
+    scrollTopBtn.classList.add('visible');
+  } else {
+    scrollTopBtn.classList.remove('visible');
+  }
+});
+
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+
+// Filter button functionality (placeholder)
+filterBtn.addEventListener('click', () => {
+  alert('Filter functionality coming soon!');
+  // Future implementation could include sorting by year, rating, etc.
 });
 </script>
 
