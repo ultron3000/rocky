@@ -1,606 +1,525 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
   <title>Rocky Cinematic Universe</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary: #ffcc00;
-      --secondary: #111827;
-      --accent: #1e40af;
-      --dark: #0f172a;
-      --light: #f8fafc;
-    }
-    
-    body {
-      background-color: var(--dark);
-      color: var(--light);
-      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    
-    .movie-card {
-      transition: all 0.3s ease;
-      transform-origin: center;
-      perspective: 1000px;
-    }
-    
-    .movie-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 25px 50px -12px rgba(255, 204, 0, 0.25);
-    }
-    
-    .movie-card:hover .movie-poster {
-      transform: rotateX(5deg);
-    }
-    
-    .movie-poster {
-      transition: all 0.5s ease;
-      transform-style: preserve-3d;
-    }
-    
-    .movie-poster::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 40%;
-      background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
-      border-radius: 0.5rem;
-    }
-    
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    
-    .gradient-text {
-      background: linear-gradient(90deg, #ffcc00, #ff8c00);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.3);
-    }
-    
-    .filter-chip {
-      transition: all 0.2s ease;
-    }
-    
-    .filter-chip:hover {
-      transform: translateY(-2px);
-    }
-    
-    .filter-chip.active {
-      background-color: var(--primary);
-      color: var(--dark);
-    }
-    
+    .hidden { display: none; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ffdd33; }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
-    .animate-fade-in {
-      animation: fadeIn 0.6s ease forwards;
+
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+
+    .movie-poster {
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
-    
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
-    .delay-6 { animation-delay: 0.6s; }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+
+    .movie-poster:hover {
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: 0 15px 30px rgba(255, 204, 0, 0.2);
     }
-    
-    ::-webkit-scrollbar-track {
-      background: rgba(30, 41, 59, 0.5);
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: var(--primary);
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: #ffb700;
-    }
-    
-    /* Dark/Light mode transition */
-    .dark-light-transition {
-      transition: background-color 0.5s ease, color 0.3s ease;
-    }
-    
-    /* Video showcase styles */
-    .video-showcase {
-      position: relative;
-      width: 100%;
-      height: 0;
-      padding-bottom: 56.25%; /* 16:9 aspect ratio */
-      overflow: hidden;
-      border-radius: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .video-showcase video {
+
+    .glow-text { text-shadow: 0 0 10px rgba(255, 204, 0.7); }
+
+    .search-container { position: relative; }
+    .search-container i {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .video-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.4));
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 1.5rem;
-      z-index: 1;
-      transition: opacity 0.3s ease;
-    }
-    
-    .video-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    .play-showcase-btn {
-      position: absolute;
+      left: 15px;
       top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: var(--primary);
-      color: var(--dark);
+      transform: translateY(-50%);
+      color: #ffcc00;
+    }
+
+    .category-btn.active {
+      background-color: #ffcc00;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 204, 0.3);
       border-radius: 50%;
-      width: 4rem;
-      height: 4rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      border-top: 4px solid #ffcc00;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
     }
-    
-    .play-showcase-btn:hover {
-      transform: translate(-50%, -50%) scale(1.1);
-      box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
-    }
-    
-    .play-showcase-btn.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    .volume-control {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      z-index: 3;
-      background-color: rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
-      width: 2.5rem;
-      height: 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .volume-control:hover {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-    
-    @media (max-width: 768px) {
-      .video-showcase {
-        padding-bottom: 75%; /* 4:3 aspect ratio for mobile */
-      }
-      
-      .play-showcase-btn {
-        width: 3rem;
-        height: 3rem;
-      }
-      
-      .video-overlay {
-        padding: 1rem;
-      }
-      
-      .video-overlay h2 {
-        font-size: 1.5rem;
-      }
-      
-      .video-overlay p {
-        font-size: 0.875rem;
-      }
-    }
-    
-    /* Loading animation */
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 0.5;
-      }
-      50% {
-        opacity: 1;
-      }
-    }
-    
-    .animate-pulse {
-      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
-<body class="dark-light-transition">
-  <div class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-gradient-to-b from-gray-900 to-transparent backdrop-blur-sm">
-      <div class="container mx-auto px-4 py-4">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center space-x-2">
-            <i class="fas fa-film text-2xl text-yellow-400"></i>
-            <h1 class="text-2xl font-bold gradient-text">Rocky Universe</h1>
-          </div>
-          
-          <div class="flex items-center space-x-4">
-            <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-700 transition">
-              <i class="fas fa-moon text-yellow-400"></i>
-            </button>
-            
-            <div class="relative group">
-              <button class="p-2 rounded-full hover:bg-gray-700 transition">
-                <i class="fas fa-sliders-h text-yellow-400"></i>
-              </button>
-              <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
-                <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700">Settings</a>
-                <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700">Help</a>
-                <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700">About</a>
-              </div>
-            </div>
-          </div>
-        </div>
+<body class="bg-black text-gray-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-black to-gray-900 py-6 px-4 shadow-lg border-b border-yellow-500">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+      <div class="flex items-center mb-4 md:mb-0">
+        <img src="https://m.media-amazon.com/images/I/81582lBzEKL.jpg" alt="Rocky logo" class="h-12 mr-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-yellow-400 glow-text">
+          Rocky Cinematic Universe
+        </h1>
       </div>
-    </header>
-    
-    <!-- Video Showcase -->
-    <div class="container mx-auto px-4 mt-4">
-      <div class="video-showcase">
-        <video id="showcaseVideo" autoplay muted loop playsinline>
-          <source src="https://imdb-video.media-imdb.com/vi1537524249/1434659607842-pgv4ql-1649907909293.mp4?Expires=1761076255&Signature=FD9qQmkKlzcKwlqKizKN6HqJyfKP4CzNraSA8nwtKdS5ZMRjVyV87W3vKLBOe6JZMWB67r4VHMwM7BDEOdpGY14NWNpzd~2nj597pl7s0NDqjvBa3tdxD7jZKyu3zfme~7oh~9qYRsVpfcs~1JGRda1N91GMca6XXvjzqcPqIUJ5oNovHSeZ59UjsgTi496-IGd1EBTgR9lTUldG6a2K1rRvmWvwTA5Sas7AEyAkv9sHQhSgEIMmzzQuSVlPzKQIXqus5as86ZOTCfs1xLgJwSp~uJBfwPYf~TuR5e~K7UuzKNLG2lsJWy04giWzQ1JLcXBwUaoljR93JQn106a27w__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA">
-          Your browser does not support the video tag.
-        </video>
-        <div class="volume-control" id="volumeControl">
-          <i class="fas fa-volume-up text-white"></i>
-        </div>
-        <div class="play-showcase-btn hidden" id="playShowcaseBtn">
-          <i class="fas fa-play text-xl"></i>
-        </div>
-        <div class="video-overlay" id="videoOverlay">
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">Rocky Balboa</h2>
-          <p class="text-gray-300 max-w-2xl text-sm md:text-base">
-            The story of Rocky Balboa, an underdog boxer who gets a shot at the world heavyweight championship.
-          </p>
-          <div class="flex items-center mt-4 space-x-3">
-            <button class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
-              <i class="fas fa-play mr-2"></i> Watch Now
-            </button>
-            <button class="bg-gray-800 bg-opacity-70 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition">
-              <i class="fas fa-info-circle mr-2"></i> More Info
-            </button>
-          </div>
+      <div class="flex items-center space-x-4">
+        <button id="theme-toggle" class="text-yellow-400 hover:text-yellow-300 text-2xl">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button id="sort-toggle" class="text-yellow-400 hover:text-yellow-300 text-2xl">
+          <i class="fas fa-sort-alpha-down"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Video Showcase -->
+  <div class="container mx-auto px-4 mt-4">
+    <div class="video-showcase relative">
+      <video id="showcaseVideo" autoplay muted loop playsinline class="w-full rounded-lg">
+        <source src="https://imdb-video.media-imdb.com/vi1537524249/1434659607842-pgv4ql-1649907909293.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center px-4">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">Rocky Balboa</h2>
+        <p class="text-gray-300 max-w-2xl text-sm md:text-base">
+          The story of Rocky Balboa, an underdog boxer who gets a shot at the world heavyweight championship.
+        </p>
+        <div class="flex items-center mt-4 space-x-3">
+          <button class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+            <i class="fas fa-play mr-2"></i> Watch Now
+          </button>
+          <button class="bg-gray-800 bg-opacity-70 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition">
+            <i class="fas fa-info-circle mr-2"></i> More Info
+          </button>
         </div>
       </div>
     </div>
-<!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-6">
-      <!-- Search and Filters -->
-      <div class="mb-8">
-        <div class="relative mb-6">
-          <input 
-            id="searchBar" 
-            type="text" 
-            placeholder="Search episodes..." 
-            class="w-full px-6 py-4 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:border-yellow-400 text-white search-input transition"
-          >
-          <i class="fas fa-search absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
-        </div>
-        
-        <div class="flex flex-wrap gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 active">
-            All Movies
-          </button>
-          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
-            Latest
-          </button>
-          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
-            Popular
-          </button>
-          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
-            Action
-          </button>
-          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
-            Drama
-          </button>
-          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
-            Thriller
-          </button>
-        </div>
-        
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold">All Movies <span id="episode-count" class="text-yellow-400">(9)</span></h3>
-          <div class="flex items-center space-x-2">
-            <span class="text-gray-400">Sort by:</span>
-            <select class="bg-gray-800 border border-gray-700 text-white px-3 py-1 rounded-lg focus:outline-none focus:border-yellow-400">
-              <option>Release Date</option>
-              <option>Alphabetical</option>
-              <option>Popularity</option>
-            </select>
-          </div>
-        </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <section class="container mx-auto px-4 py-6">
+    <div class="search-container mb-6">
+      <i class="fas fa-search"></i>
+      <input id="searchBar" type="text" placeholder="Search Rocky movies..." class="w-full pl-12 pr-4 py-3 bg-gray-900 border-2 border-yellow-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white placeholder-yellow-400">
+    </div>
+
+    <!-- Category Buttons -->
+    <div class="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
+      <button class="category-btn active px-4 py-2 bg-yellow-500 text-black rounded" data-category="all">All</button>
+      <button class="category-btn px-4 py-2 bg-gray-800 text-yellow-400 rounded" data-category="Drama">Drama</button>
+      <button class="category-btn px-4 py-2 bg-gray-800 text-yellow-400 rounded" data-category="Sports">Sports</button>
+      <button class="category-btn px-4 py-2 bg-gray-800 text-yellow-400 rounded" data-category="Action">Action</button>
+    </div>
+
+    <div class="text-yellow-400 mb-4">
+      <span id="movie-count">0</span> movies available
+    </div>
+  </section>
+
+  <!-- Movies Grid -->
+  <main class="container mx-auto px-4 pb-10">
+    <div id="loading" class="spinner"></div>
+    <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 border-t border-yellow-500 py-6">
+    <div class="container mx-auto px-4 text-center text-gray-400">
+      <p>© 2024 Rocky Cinematic Universe. All rights reserved.</p>
+      <div class="flex justify-center space-x-4 mt-3">
+        <a href="#" class="hover:text-yellow-400 transition"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-yellow-400 transition"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-yellow-400 transition"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="hover:text-yellow-400 transition"><i class="fab fa-youtube"></i></a>
       </div>
-      
-      <!-- Movies Grid -->
-      <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
-      
-      <!-- Loading Spinner -->
-      <div id="loading-spinner" class="hidden flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+    </div>
+  </footer>
+
+  <!-- Modal Player -->
+  <div id="playerModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+    <div class="w-full max-w-4xl relative">
+      <button id="closeModal" class="absolute -top-10 right-0 text-2xl text-yellow-400 hover:text-yellow-300">
+        <i class="fas fa-times"></i>
+      </button>
+      <video id="modalVideo" controls class="w-full aspect-video bg-black">
+        Your browser does not support the video tag.
+      </video>
+      <div id="qualityControls" class="flex justify-center mt-2"></div>
+      <div id="playerError" class="hidden bg-red-900 text-white p-2 rounded mt-2 text-center"></div>
+      <div class="flex justify-between mt-2">
+        <button onclick="playPreviousVideo()" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+          <i class="fas fa-step-backward mr-1"></i> Prev
+        </button>
+        <button onclick="toggleFullscreen()" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+          <i class="fas fa-expand mr-1"></i> Fullscreen
+        </button>
+        <button onclick="playNextVideo()" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+          Next <i class="fas fa-step-forward ml-1"></i>
+        </button>
       </div>
-    </main>
-    
-    <!-- Footer -->
-    <footer class="bg-gray-900 py-6">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-          <div class="mb-4 md:mb-0">
-            <div class="flex items-center space-x-2">
-              <i class="fas fa-film text-xl text-yellow-400"></i>
-              <span class="text-lg font-semibold gradient-text">Rocky Universe</span>
-            </div>
-            <p class="text-gray-400 mt-2">© 2023 All Rights Reserved</p>
-          </div>
-          
-          <div class="flex space-x-6">
-            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-youtube"></i></a>
-          </div>
-        </div>
+      <h3 id="modalTitle" class="text-xl font-bold text-yellow-400 mt-2"></h3>
+      <div class="text-center text-gray-400 text-sm mt-1">
+        Keyboard shortcuts: Space=Play/Pause, Arrows=Seek, F=Fullscreen, N=Next, P=Previous, M=Mute
       </div>
-    </footer>
+    </div>
   </div>
 
   <script>
-    // Movie data
-    const movies = [
-      { 
-        title: "Rocky", 
-        video: "https://www.youtube.com/watch?v=3VUblDwa648", 
-        image: "https://m.media-amazon.com/images/I/81D9S-YP5oL.jpg",
-        rating: 4.7,
-        duration: "119 min",
-        date: "1976-11-21",
-        genre: ["Drama", "Sports"]
-      },
-      { 
-        title: "Rocky II", 
-        video: "https://vip.opstream12.com/20220628/22776_942a9b07/index.m3u8", 
-        image: "https://images-cdn.ubuy.co.in/634e494b208b18270d536803-movie-poster-rocky-ii-1979-24x36-this.jpg",
-        rating: 4.3,
-        duration: "119 min",
-        date: "1979-06-15",
-        genre: ["Drama", "Sports"]
-      },
-      { 
-        title: "Rocky III", 
-        video: "https://vip.opstream12.com/20220626/22391_2d6b7c64/index.m3u8", 
-        image: "https://posterspy.com/wp-content/uploads/2022/05/235-rocky-alternative-movie-poster-final.jpg",
-        rating: 4.2,
-        duration: "99 min",
-        date: "1982-05-28",
-        genre: ["Drama", "Sports"]
-      },
-      { 
-        title: "Rocky IV", 
-        video: "https://vip.opstream12.com/20220529/16967_5dc91c6a/index.m3u8", 
-        image: "https://posterspy.com/wp-content/uploads/2020/11/rocky-iv-genzo-1280.jpg",
-        rating: 4.1,
-        duration: "91 min",
-        date: "1985-11-27",
-        genre: ["Drama", "Sports", "Action"]
-      },
-      { 
-        title: "Rocky V", 
-        video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/1990/2/2/2372/movie.2372.1990.1080p.H264.20200321051618.mp4?KEY1=BFaa48x_thaV48ZNlBAZ3w&KEY2=1761004195&KEY3=1077641&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1077641", 
-        image: "https://m.media-amazon.com/images/M/MV5BMTM2Mzc4MTYxM15BMl5BanBnXkFtZTcwODY5NTk1NA@@._V1_FMjpg_UX1000_.jpg",
-        rating: 3.5,
-        duration: "104 min",
-        date: "1990-11-16",
-        genre: ["Drama", "Sports"]
-      },
-      { 
-        title: "Rocky Balboa", 
-        video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/2006/2/9/2379/movie.2379.2006.1080p.H264.20190403025848.mp4?KEY1=Po00sXqZTF7Rz6sDzuF_qA&KEY2=1761004297&KEY3=1081108&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1081108", 
-        image: "https://m.media-amazon.com/images/I/81zj0nhRI1L.jpg",
-        rating: 4.0,
-        duration: "102 min",
-        date: "2006-12-20",
-        genre: ["Drama", "Sports"]
-      },
-      { 
-        title: "Creed", 
-        video: "https://vip.opstream12.com/20220511/15153_f8238d31/index.m3u8", 
-        image: "https://m.media-amazon.com/images/I/61rcZZn-HfL._AC_UF1000,1000_QL80_.jpg",
-        rating: 4.5,
-        duration: "133 min",
-        date: "2015-11-25",
-        genre: ["Drama", "Sports"]
-      },
-      { 
-        title: "Creed II", 
-        video: "https://vip.opstream12.com/20220508/14932_205ec359/index.m3u8", 
-        image: "https://mlpnk72yciwc.i.optimole.com/cqhiHLc.IIZS~2ef73/w:auto/h:auto/q:75/https://bleedingcool.com/wp-content/uploads/2018/02/creed-ii.jpg",
-        rating: 4.3,
-        duration: "130 min",
-        date: "2018-11-21",
-        genre: ["Drama", "Sports"]
-      },
-      { 
-        title: "Creed III", 
-        video: "https://vip.opstream15.com/20230404/37394_ec4580ab/index.m3u8", 
-        image: "https://m.media-amazon.com/images/M/MV5BOWY0MTRmY2YtMzBlYi00NjlkLThkZWYtMmE2NzJiZmIzODFkXkEyXkFqcGc@._V1_.jpg",
-        rating: 4.6,
-        duration: "116 min",
-        date: "2023-03-03",
-        genre: ["Drama", "Sports"]
+    window.addEventListener('DOMContentLoaded', () => {
+      const movies = [
+        {
+          title: "Rocky",
+          video: "https://vip.opstream12.com/20220529/16968_eec5cdf1/index.m3u8",
+          image: "https://m.media-amazon.com/images/I/81D9S-YP5oL.jpg",
+          rating: 4.7,
+          duration: "119 min",
+          date: "1976-11-21",
+          year: 1976,
+          category: "Drama"
+        },
+        {
+          title: "Rocky II",
+          video: "https://vip.opstream12.com/20220628/22776_942a9b07/index.m3u8",
+          image: "https://images-cdn.ubuy.co.in/634e494b208b18270d536803-movie-poster-rocky-ii-1979-24x36-this.jpg",
+          rating: 4.3,
+          duration: "119 min",
+          date: "1979-06-15",
+          year: 1979,
+          category: "Drama"
+        },
+        {
+          title: "Rocky III",
+          video: "https://vip.opstream12.com/20220626/22391_2d6b7c64/index.m3u8",
+          image: "https://posterspy.com/wp-content/uploads/2022/05/235-rocky-alternative-movie-poster-final.jpg",
+          rating: 4.2,
+          duration: "99 min",
+          date: "1982-05-28",
+          year: 1982,
+          category: "Drama"
+        },
+        {
+          title: "Rocky IV",
+          video: "https://vip.opstream12.com/20220529/16967_5dc91c6a/index.m3u8",
+          image: "https://posterspy.com/wp-content/uploads/2020/11/rocky-iv-genzo-1280.jpg",
+          rating: 4.1,
+          duration: "91 min",
+          date: "1985-11-27",
+          year: 1985,
+          category: "Action"
+        },
+        {
+          title: "Rocky V",
+          video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/1990/2/2/2372/movie.2372.1990.1080p.H264.20200321051618.mp4",
+          image: "https://m.media-amazon.com/images/M/MV5BMTM2Mzc4MTYxM15BMl5BanBnXkFtZTcwODY5NTk1NA@@._V1_FMjpg_UX1000_.jpg",
+          rating: 3.5,
+          duration: "104 min",
+          date: "1990-11-16",
+          year: 1990,
+          category: "Drama"
+        },
+        {
+          title: "Rocky Balboa",
+          video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/2006/2/9/2379/movie.2379.2006.1080p.H264.20190403025848.mp4",
+          image: "https://m.media-amazon.com/images/I/81zj0nhRI1L.jpg",
+          rating: 4.0,
+          duration: "102 min",
+          date: "2006-12-20",
+          year: 2006,
+          category: "Drama"
+        },
+        {
+          title: "Creed",
+          video: "https://vip.opstream12.com/20220511/15153_f8238d31/index.m3u8",
+          image: "https://m.media-amazon.com/images/I/61rcZZn-HfL._AC_UF1000,1000_QL80_.jpg",
+          rating: 4.5,
+          duration: "133 min",
+          date: "2015-11-25",
+          year: 2015,
+          category: "Drama"
+        },
+        {
+          title: "Creed II",
+          video: "https://vip.opstream12.com/20220508/14932_205ec359/index.m3u8",
+          image: "https://mlpnk72yciwc.i.optimole.com/cqhiHLc.IIZS~2ef73/w:auto/h:auto/q:75/https://bleedingcool.com/wp-content/uploads/2018/02/creed-ii.jpg",
+          rating: 4.3,
+          duration: "130 min",
+          date: "2018-11-21",
+          year: 2018,
+          category: "Drama"
+        },
+        {
+          title: "Creed III",
+          video: "https://vip.opstream15.com/20230404/37394_ec4580ab/index.m3u8",
+          image: "https://m.media-amazon.com/images/M/MV5BOWY0MTRmY2YtMzBlYi00NjlkLThkZWYtMmE2NzJiZmIzODFkXkEyXkFqcGc@._V1_.jpg",
+          rating: 4.6,
+          duration: "116 min",
+          date: "2023-03-03",
+          year: 2023,
+          category: "Drama"
+        }
+      ];
+
+      const container = document.getElementById('movies');
+      const loadingElement = document.getElementById('loading');
+      const movieCountElement = document.getElementById('movie-count');
+      const categoryButtons = document.querySelectorAll('.category-btn');
+      const searchBar = document.getElementById('searchBar');
+      const themeToggle = document.getElementById('theme-toggle');
+      const sortToggle = document.getElementById('sort-toggle');
+
+      let currentCategory = 'all';
+      let sortBy = 'title';
+      let isDarkMode = true;
+      let currentVideo = null;
+
+      function playVideo(title, videoUrl, index) {
+        if (videoUrl.includes('.mp4') || videoUrl.includes('.m3u8')) {
+          const modal = document.getElementById('playerModal');
+          const video = document.getElementById('modalVideo');
+          const titleElement = document.getElementById('modalTitle');
+          const qualityControls = document.getElementById('qualityControls');
+
+          qualityControls.innerHTML = '';
+          titleElement.textContent = title;
+          video.src = videoUrl;
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+
+          video.addEventListener('error', () => {
+            showError("Failed to load video. Please try a different movie.");
+          });
+
+          video.play().catch(e => {
+            showError("Autoplay blocked. Please click play.");
+          });
+
+          currentVideo = { title, videoUrl, index };
+        } else {
+          window.location.href = videoUrl;
+        }
       }
-    ];
 
-    // DOM Elements
-    const container = document.getElementById('movies');
-    const searchBar = document.getElementById('searchBar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const episodeCount = document.getElementById('episode-count');
+      function showError(message) {
+        const errorElement = document.getElementById('playerError');
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+        setTimeout(() => errorElement.classList.add('hidden'), 5000);
+      }
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      renderMovies(movies);
-      setupEventListeners();
-      checkThemePreference();
-    });
+      function init() {
+        renderMovies();
+        setupEventListeners();
+      }
 
-    // Render movies
-    function renderMovies(moviesToRender) {
-      container.innerHTML = '';
-      episodeCount.textContent = `(${moviesToRender.length})`;
-      
-      moviesToRender.forEach((movie, index) => {
-        const delayClass = `delay-${(index % 6) + 1}`;
-        
-        const movieCard = document.createElement('div');
-        movieCard.className = `movie-card animate-fade-in ${delayClass}`;
-        movieCard.innerHTML = `
-          <div class="relative overflow-hidden rounded-xl movie-poster h-80">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover">
-            <div class="absolute bottom-0 left-0 right-0 p-4 z-10">
-              <div class="flex justify-between items-center mb-2">
-                <span class="bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded">${movie.rating} ★</span>
-                <span class="bg-gray-900 bg-opacity-70 text-white text-xs px-2 py-1 rounded">${movie.duration}</span>
-              </div>
-              <h3 class="text-lg font-bold text-white truncate">${movie.title}</h3>
-              <div class="flex flex-wrap gap-1 mt-2">
-                ${movie.genre.map(g => `<span class="text-xs bg-gray-800 text-gray-300 px-2 py-1 rounded">${g}</span>`).join('')}
-              </div>
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
-              <button class="play-button bg-yellow-400 text-gray-900 rounded-full w-16 h-16 flex items-center justify-center transform hover:scale-110 transition-transform">
-                <i class="fas fa-play text-xl"></i>
-              </button>
-            </div>
-          </div>
-        `;
-        
-        movieCard.addEventListener('click', () => {
-          loadingSpinner.classList.remove('hidden');
-          setTimeout(() => {
-            const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&index=${index}`;
-            window.location.href = url;
-          }, 500);
+      function setupEventListeners() {
+        categoryButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            currentCategory = button.dataset.category;
+            updateActiveCategoryButton();
+            renderMovies();
+          });
         });
-        
-        container.appendChild(movieCard);
-      });
-    }
 
-    // Setup event listeners
-    function setupEventListeners() {
-      // Search functionality
-      searchBar.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const filteredMovies = movies.filter(movie => 
-          movie.title.toLowerCase().includes(searchTerm) ||
-          movie.genre.some(g => g.toLowerCase().includes(searchTerm))
-        );
-        renderMovies(filteredMovies);
-      });
-      
-      // Filter chips
-      document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', function() {
-          document.querySelector('.filter-chip.active').classList.remove('active');
-          this.classList.add('active');
-          
-          const filterText = this.textContent.trim();
-          if (filterText === 'All Episodes') {
-            renderMovies(movies);
-          } else {
-            const filteredMovies = movies.filter(movie => 
-              movie.genre.includes(filterText)
-            );
-            renderMovies(filteredMovies);
+        searchBar.addEventListener('input', () => {
+          renderMovies();
+        });
+
+        themeToggle.addEventListener('click', toggleTheme);
+        sortToggle.addEventListener('click', toggleSort);
+
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', (e) => {
+          const modal = document.getElementById('playerModal');
+          if (!modal.classList.contains('hidden')) {
+            switch (e.key) {
+              case 'Escape': closeModal(); break;
+              case ' ': e.preventDefault(); togglePlayPause(); break;
+              case 'ArrowRight': seekVideo(10); break;
+              case 'ArrowLeft': seekVideo(-10); break;
+              case 'f': toggleFullscreen(); break;
+              case 'm': toggleMute(); break;
+              case 'n': playNextVideo(); break;
+              case 'p': playPreviousVideo(); break;
+            }
           }
         });
-      });
-      
-      // Theme toggle
-      themeToggle.addEventListener('click', toggleTheme);
-    }
 
-    // Theme management
-    function checkThemePreference() {
-      if (localStorage.getItem('theme') === 'dark' || 
-          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-        themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
-      } else {
-        document.documentElement.classList.remove('dark');
-        themeToggle.innerHTML = '<i class="fas fa-moon text-yellow-400"></i>';
+        document.getElementById('qualityControls').addEventListener('click', (e) => {
+          if (e.target.classList.contains('quality-btn')) {
+            const video = document.getElementById('modalVideo');
+            const currentTime = video.currentTime;
+            video.src = e.target.dataset.url;
+            video.currentTime = currentTime;
+            video.play().catch(e => showError("Please click play manually"));
+          }
+        });
       }
-    }
 
-    function toggleTheme() {
-      if (document.documentElement.classList.contains('dark')) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-        themeToggle.innerHTML = '<i class="fas fa-moon text-yellow-400"></i>';
-      } else {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-        themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+      function closeModal() {
+        const modal = document.getElementById('playerModal');
+        const video = document.getElementById('modalVideo');
+        video.pause();
+        video.src = '';
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
       }
-    }
 
-    // Simulate loading more movies on scroll (for demo purposes)
-    window.addEventListener('scroll', () => {
-      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-        // In a real app, you would fetch more data here
+      function togglePlayPause() {
+        const video = document.getElementById('modalVideo');
+        video.paused ? video.play() : video.pause();
       }
+
+      function seekVideo(seconds) {
+        const video = document.getElementById('modalVideo');
+        video.currentTime += seconds;
+      }
+
+      function toggleFullscreen() {
+        const video = document.getElementById('modalVideo');
+        if (!document.fullscreenElement) {
+          video.requestFullscreen().catch(err => showError("Fullscreen failed: " + err.message));
+        } else {
+          document.exitFullscreen();
+        }
+      }
+
+      function toggleMute() {
+        const video = document.getElementById('modalVideo');
+        video.muted = !video.muted;
+      }
+
+      function playNextVideo() {
+        const list = getFilteredMovies();
+        if (currentVideo && currentVideo.index < list.length - 1) {
+          const next = list[currentVideo.index + 1];
+          playVideo(next.title, next.video, currentVideo.index + 1);
+        }
+      }
+
+      function playPreviousVideo() {
+        const list = getFilteredMovies();
+        if (currentVideo && currentVideo.index > 0) {
+          const prev = list[currentVideo.index - 1];
+          playVideo(prev.title, prev.video, currentVideo.index - 1);
+        }
+      }
+
+      function updateActiveCategoryButton() {
+        categoryButtons.forEach(button => {
+          if (button.dataset.category === currentCategory) {
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
+          }
+        });
+      }
+
+      function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        if (isDarkMode) {
+          document.body.classList.remove('bg-gray-100','text-gray-900');
+          document.body.classList.add('bg-black','text-gray-100');
+          themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+          document.body.classList.remove('bg-black','text-gray-100');
+          document.body.classList.add('bg-gray-100','text-gray-900');
+          themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+      }
+
+      function toggleSort() {
+        sortBy = sortBy === 'title' ? 'year' : 'title';
+        if (sortBy === 'title') {
+          sortToggle.innerHTML = '<i class="fas fa-sort-alpha-down"></i>';
+        } else {
+          sortToggle.innerHTML = '<i class="fas fa-sort-numeric-down"></i>';
+        }
+        renderMovies();
+      }
+
+      function getFilteredMovies() {
+        let filtered = movies.slice();
+
+        if (currentCategory !== 'all') {
+          filtered = filtered.filter(m => m.category === currentCategory);
+        }
+
+        const searchTerm = searchBar.value.toLowerCase();
+        if (searchTerm) {
+          filtered = filtered.filter(m => m.title.toLowerCase().includes(searchTerm));
+        }
+
+        if (sortBy === 'title') {
+          filtered.sort((a, b) => a.title.localeCompare(b.title));
+        } else {
+          filtered.sort((a, b) => b.year - a.year);
+        }
+
+        return filtered;
+      }
+
+      function renderMovies() {
+        loadingElement.style.display = 'block';
+        container.innerHTML = '';
+
+        setTimeout(() => {
+          const list = getFilteredMovies();
+          if (list.length === 0) {
+            container.innerHTML = `
+              <div class="col-span-full text-center py-10">
+                <i class="fas fa-film text-5xl text-yellow-400 mb-4"></i>
+                <h3 class="text-xl font-semibold">No movies found</h3>
+                <p class="text-gray-400">Try adjusting your search or filter</p>
+              </div>
+            `;
+          } else {
+            list.forEach((movie, idx) => {
+              const div = document.createElement('div');
+              div.className = 'fade-in';
+              div.innerHTML = `
+                <div class="movie-poster bg-gray-800 rounded-lg overflow-hidden shadow-lg h-full flex flex-col">
+                  <img src="${movie.image}" alt="${movie.title}" class="w-full h-64 md:h-80 object-cover">
+                  <div class="p-3 flex-grow">
+                    <h3 class="font-bold text-yellow-400 truncate">${movie.title}</h3>
+                    <div class="flex justify-between items-center mt-2">
+                      <span class="text-sm text-gray-400">${movie.year}</span>
+                      <span class="text-xs px-2 py-1 bg-yellow-500 text-black rounded-full">${movie.category.toUpperCase()}</span>
+                    </div>
+                  </div>
+                  <button class="play-btn w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 transition">
+                    <i class="fas fa-play mr-2"></i> Watch Now
+                  </button>
+                </div>
+              `;
+              div.querySelector('.play-btn').addEventListener('click', () => {
+                playVideo(movie.title, movie.video, idx);
+              });
+              container.appendChild(div);
+            });
+          }
+
+          movieCountElement.textContent = list.length;
+          loadingElement.style.display = 'none';
+        }, 300);
+      }
+
+      init();
     });
   </script>
+
 </body>
 </html>
